@@ -4,9 +4,9 @@ Learn C programming by a game
 
 ## Make your own game
 
-The game happens in a rectangular world. Each cell in the game world has state expressed as integer number.
-Your goal as a programmer is to modify rectangular world according to pressed keys.
-The library draws the world to screen.
+The game happens in a rectangular world. 
+Your goal as a programmer is to the world according to pressed keys and internal game state.
+The library imploements the game loop and draws the world to screen.
 
 Your game consists of three functions. Each function can modify the world.
 
@@ -16,7 +16,7 @@ Your game consists of three functions. Each function can modify the world.
 
 ## Installation and Running
 
-Make sure, that Termbox is installed.
+Make sure, that [Termbox[(https://github.com/nsf/termbox) is installed.
 
 Clone this repository.
 
@@ -30,3 +30,6 @@ Run:
 Default game will be run.
 
 ## API
+
+- [world.h](https://github.com/hladek/world/blob/master/world.h)
+- [termbox.h](https://github.com/nsf/termbox/blob/master/src/termbox.h)
