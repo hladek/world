@@ -16,7 +16,7 @@ Your game consists of three functions. Each function can modify the world.
 
 ## Installation and Running
 
-Make sure, that [Termbox[(https://github.com/nsf/termbox) is installed.
+Make sure, that [Termbox](https://github.com/nsf/termbox) is installed.
 
 Clone this repository.
 
