@@ -4,15 +4,15 @@ Learn C programming by a game
 
 ## Make your own game
 
-The game happens in a rectangular world. 
-Your goal as a programmer is to the world according to pressed keys and internal game state.
-The library imploements the game loop and draws the world to screen.
+The game happens in a rectangular world of colorful characters. 
+Your goal as a programmer is to modify the world according to the pressed keys and the internal game state.
+The library implements the game loop and draws the world to screen.
 
 Your game consists of three functions. Each function can modify the world.
 
-- start(struct world* w) is called in the beginning. Here you can initialize additional state of the game. 
-- step(struct world* w,int key) is called in periodic interval or when a key was pressed. None zero return value or ESC key interrputs the game loop.
-- stop(struct world) is called before end. Here you can free additional memory initialized at the start.
+- `start(struct world* w)` is called in the beginning. Here you can initialize the internal state of the game. 
+- `step(struct world* w,int key)` is called in periodic interval or when a key was pressed. None zero return value or `ESC` key interrupts the game loop.
+- `stop(struct world)` is called before end. Here you can free the internal state initialized in the `start()` function.
 
 ## Installation and Running
 
