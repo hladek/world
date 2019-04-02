@@ -3,6 +3,8 @@
 #include <string.h>
 #include "world.h"
 
+// Set of variables that expresses state of the game.
+// 
 struct state {
     // X position of the cat
     int catx;
@@ -18,7 +20,7 @@ struct state {
 
 // Start is called one in the beginning
 void start(struct world* world,int argc, char** argv){
-    // Allocate mmory for the state
+    // Allocate memory for the state
     struct state* st = calloc(1,(sizeof(struct state)));
     // Initialize state
     st->mousex = 11;
@@ -29,7 +31,8 @@ void start(struct world* world,int argc, char** argv){
     world->state = st;
 }
 
-// Ste is called in a loop once in interval
+// Step is called in a loop once in interval.
+// It should modify the state and draw it.
 int step(struct world* w,int key){
     // Get state pointer
     struct state* st = w->state;

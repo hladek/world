@@ -19,12 +19,6 @@ struct world {
      */
     int height;
     /**
-     * Ponter to the game world. 
-     */
-    struct tb_cell* plane;
-
-    int plane_size;
-    /**
      * State of the game managed by the programmer.
      */
     void* state;
@@ -40,18 +34,6 @@ struct world {
  * @param world
  */
 void init_world(struct world* w);
-
-/**
- * Draws the world on screen.
- * @param world
- */
- void draw_world(struct world* world);
-
-/**
- * Sets each cell of th world to zero.
- * @param world
- */
-void clear_world(struct world* world);
 
 /**
  * Sets cell to a state.
