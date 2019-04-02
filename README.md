@@ -41,9 +41,9 @@ The `step()` function should:
 1. Read the game state (from the `void* state`) pointer.
 1. Examine the pressed key. If the `key` variable is non-zero, a key was pressed. According to the pressed key, modify the game state.
 1. Draw the game state. In the beginning of the step function the screen is empty.
-1. Returning non/zero value ends the game loop. 
+1. Returning non-zero value ends the game loop. 
 
-At the start the step() is called with zero `key` argument.
+At the start the `step()` is called with zero `key` argument.
 
 Mapping of values to pressed keys can be read from file 
 [termbox.h](https://github.com/nsf/termbox/blob/master/src/termbox.h).
@@ -80,19 +80,17 @@ The function draws  the given 'character' on screen 'w' in the given place '[x,y
 The library supports full Unicode character set, so you can draw beautiful graphics
 as it is in the [demo program](https://github.com/nsf/termbox/blob/master/src/demo/paint.c):
 
-    static const uint32_t runes[] = {
         0x20, // ' '
         0x2591, // '░'
         0x2592, // '▒'
         0x2593, // '▓'
         0x2588, // '█'
-    };
 
 It is possible to draw a character and set color of the background and foreground using a function
 
     void set_color_character(struct world* w,int x,int y,int character,uint16_t foreground,uint16_t background)
 
-Parameters 'foreground' and 'background' are color codes from file 'termbox.h'.
+Parameters `foreground` and `background` are color codes from file `termbox.h`.
 
 Some important color codes:
 
