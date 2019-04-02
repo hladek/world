@@ -40,12 +40,6 @@ struct world {
 
 
 /**
- * Initializes the game world. This function is called by the librabry (function game())
- * @param world
- */
-void init_world(struct world* w);
-
-/**
  * Sets cell to a state.
  * @param world
  * @param x coordinate of cell
@@ -64,7 +58,7 @@ void set_message(struct world* w,int x,int y,const char* message);
 void game(int argc,char** argv);
 
 /**
- *  Initializes user state.
+ * Initializes user state.
  * @param world
  * @param number of commandline arguments
  * @param commandline arguments 
@@ -79,9 +73,9 @@ void start(struct world*,int argc,char** argv);
 void stop(struct world* world);
 
 /**
- * Changes state of the world according to pressed keys
+ * Changes state of the world according to pressed keys or events.
  * @param world
- * @param code of the pressed key
+ * @param code of the event. Event is WORLD_START_EVENT for the first step, WORLD_TIMEOUT_EVENT for regular step or Termbox key code (TB_KEY_*) for key press event. Mouse events are ignored.
  */
 int step(struct world* world,int key);
 

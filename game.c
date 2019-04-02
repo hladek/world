@@ -44,7 +44,7 @@ int step(struct world* w,int key){
         // Just print message
         strcpy(st->message,"HAM!!!");
     }
-	else {
+    else {
     	// random mouse movement
         int m = rand() % 4;
         if (m == 0){
@@ -53,10 +53,10 @@ int step(struct world* w,int key){
         else if (m == 1){
             st->mousey += 1;
         }
-        else if (key == TB_KEY_ARROW_LEFT){
+        else if (my == 2){
             st->mousex -= 1;
         }
-        else if (key == TB_KEY_ARROW_UP){
+        else if (key == 3){
             st->mousex += 1;
         }
         // Move cat according to keyboard
