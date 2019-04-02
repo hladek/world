@@ -53,10 +53,10 @@ int step(struct world* w,int key){
         else if (m == 1){
             st->mousey += 1;
         }
-        else if (my == 2){
+        else if (m == 2){
             st->mousex -= 1;
         }
-        else if (key == 3){
+        else if (m == 3){
             st->mousex += 1;
         }
         // Move cat according to keyboard
