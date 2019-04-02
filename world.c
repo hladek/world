@@ -116,10 +116,7 @@ void game(int argc, char** argv){
         }
         clear_world(&world);
         r = step(&world,eventkey);
-        if (eventkey == TB_KEY_ESC){
-            r = 1;
-        }
-        else if (eventkey == TB_KEY_CTRL_C){
+        if (eventkey == TB_KEY_CTRL_C){
             r = 1;
         }
         else if (eventkey == TB_KEY_CTRL_D){
