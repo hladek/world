@@ -4,25 +4,36 @@
 #include "world.h"
 
 struct state {
+    // X position of the cat
     int catx;
+    // Y opsition of the cat
     int caty;
+    // X position of the mouse
     int mousex;
+    // Y position of the mouse
     int mousey;
+    // Funny message
     char message[100];
 };
 
+// Start is called one in the beginning
 void start(struct world* world,int argc, char** argv){
+    // Allocate mmory for the state
     struct state* st = calloc(1,(sizeof(struct state)));
+    // Initialize state
     st->mousex = 11;
     st->mousey = 12;
     st->catx = 5;
     st->caty = 5;
+    // Store pointer to the state to the world variable
     world->state = st;
 }
 
+// Ste is called in a loop once in interval
 int step(struct world* w,int key){
     // Get state pointer
     struct state* st = w->state;
+
     // Update state
 
     // Is mouse caught ?
@@ -59,14 +70,20 @@ int step(struct world* w,int key){
             st->catx += 1;
         }	
     }
-	// Draw state
+	// Draw state 
     set_character(w,st->catx,st->caty,'c');
     set_character(w,st->mousex,st->mousey,'m');
     set_message(w,12,13,st->message);
+    if (key == TB_KEY_ESC){
+    	// Non zero means finish the loop and stop the game.
+        return 1;
+    }
 
     return 0;
 }
 
+// Stop is called after game loop is finished
 void stop(struct world* world){
+    // Free memory for game state
     free(world->state);
 }
