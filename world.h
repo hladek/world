@@ -1,9 +1,19 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
+// Signalizes game next loop  
+// (abuses ctrl tilda keypress code)
+#define WORLD_TIMEOUT_EVENT 0
+// Signlizes the first step of the game loop
+// (abuses ctrl a keypress)
+#define WORLD_START_EVENT 1
+// Signalizes resize of the screen (width and height have changed)
+// (abuses ctrl b keypress)
+#define WORLD_RESIZE_EVENT 2
+
 #include <termbox.h>
 /**
- * Game world represented as a rectangular matrix of integers.
+ * Game world represented as a rectangular matrix of colorful characters.
  * 
  * Point [0,0] is displayed the upper left corner of the screen.
  * 
@@ -11,11 +21,11 @@
 
 struct world {
     /**
-     * Width of the game world.
+     * Width of the screen.
      */
     int width;
     /**
-     * Height of the game world.
+     * Height of the screen.
      */
     int height;
     /**
@@ -23,7 +33,7 @@ struct world {
      */
     void* state;
     /**
-     * Interval to wait for next step. Next step is also triggered by a keypress
+     * Interval to wait for next step. 
      */
     int interval;
 };

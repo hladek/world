@@ -77,23 +77,25 @@ void game(int argc, char** argv){
     memset(&world,0,sizeof(struct world));
     init_world(&world);
     start(&world,argc,argv);
-    r = step_world(&world,0);
+    r = step_world(&world,WORLD_START_EVENT);
     while (!r) {
         int t = tb_peek_event(&event,world.interval);
         if (t == -1){
             end_message(&world,"termox poll error");
         }
-        // Zero abuses tilda keycode
-        int eventkey = 0;
+        int eventkey = WORLD_TIMEOUT_EVENT;
         if (event.type == TB_EVENT_KEY){
             eventkey = event.key;
             if (event.ch > 0){
                 eventkey = event.ch;
             }
         }
-        if (event.type == TB_EVENT_RESIZE){
-            // This abuses Ctrl A key code
-            eventkey = 1;
+        else if (event.type == TB_EVENT_RESIZE){
+            eventkey = WORLD_RESIZE_EVENT;
+        }
+        else if (event.type == TB_EVENT_MOUSE){
+            // Ignore mouse events
+            continue;
         }
         r = step_world(&world,eventkey);
         if (eventkey == TB_KEY_CTRL_C){
