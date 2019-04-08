@@ -34,8 +34,16 @@ void init_world(struct world* w) {
 
 void set_color_character(struct world* w,int x,int y,int character,uint16_t foreground,uint16_t background) {
     assert_message(w != NULL,w,"set_character:: world is NULL"); 
-    assert_message((x >= 0) && (x < w->width),w,"set_character:: width is out of bounds");
-    assert_message((y >= 0) && (y < w->height),w,"set_character:: height is out of bounds");
+    if (x < 0 || x >= w->width){
+        char msg[100];
+        sprintf(msg,"set_character:: width %d is out of bounds (0,%d)",x,w->width);
+        end_message(w,msg);
+    }
+    if (y < 0 || y >= w->height){
+        char msg[100];
+        sprintf(msg,"set_character:: height %d is out of bounds (0,%d)",y,w->height);
+        end_message(w,msg);
+    }
     tb_change_cell(x,y,character,foreground,background);
 }
 
