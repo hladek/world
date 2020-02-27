@@ -3,115 +3,101 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termbox.h>
 #include <time.h>
+#include <unistd.h>
 
-void destroy_world(struct world* world){
-    stop(world);
-    tb_shutdown();
-}
 
-void end_message(struct world* world, const char* message){
-    destroy_world(world);
+void abort_game(const char* message){
+    endwin();
     puts(message);
-    exit(0);
+    exit(1);
 }
 
-void assert_message(int event, struct world* world, const char* message){
+void assert_message(int event,const char* message){
     if (event == 0){
-        end_message(world,message);
+        abort_game(message);
     }
 }
 
-void init_world(struct world* w) {
-    assert_message(w != NULL,w,"init_world:: world is NULL"); 
-    w->height = tb_height();
-    w->width = tb_width();
-    if (w->interval <= 0){
-        w->interval = 100;
-    }
-}
-
-void set_color_character(struct world* w,int x,int y,int character,uint16_t foreground,uint16_t background) {
-    assert_message(w != NULL,w,"set_character:: world is NULL"); 
+void set_color_character(struct game* w,int x,int y,int character,int pen) {
+    assert_message(w != NULL,"set_character:: world is NULL"); 
     if (x < 0 || x >= w->width){
         char msg[100];
         sprintf(msg,"set_character:: width %d is out of bounds (0,%d)",x,w->width);
-        end_message(w,msg);
+        abort_game(msg);
     }
     if (y < 0 || y >= w->height){
         char msg[100];
         sprintf(msg,"set_character:: height %d is out of bounds (0,%d)",y,w->height);
-        end_message(w,msg);
+        abort_game(msg);
     }
-    tb_change_cell(x,y,character,foreground,background);
+    attron(pen);
+    mvaddch(x,y,character);
+    attroff(pen);
 }
 
-void set_character(struct world* w,int x,int y,int character) {
-    set_color_character(w,x,y,character,TB_WHITE,TB_BLACK);
+void set_character(struct game* w,int x,int y,int character) {
+    set_color_character(w,x,y,character,0);
 }
 
-void set_message(struct world* w,int x,int y,const char* message) {
+void set_message(struct game* w,int x,int y,const char* message) {
     int l = strlen(message);
     for (int i = 0; i < l; i++){
         set_character(w,x+i,y,message[i]);
     }
 }
 
-void set_color_message(struct world* w,int x,int y,const char* message,int character,uint16_t foreground,uint16_t background) {
+void set_color_message(struct game* g,int x,int y,const char* message,int character,int pen) {
     int l = strlen(message);
     for (int i = 0; i < l; i++){
-        set_color_character(w,x+i,y,message[i],foreground,background);
+        set_color_character(g,x+i,y,message[i],pen);
     }
 }
 
-int step_world(struct world* world,int eventkey){
-    init_world(world);
-    tb_clear();
-    int r = step(world,eventkey);
-    tb_present();
-    return r;
-}
-
-void game(int argc, char** argv){
+void start(int argc,char** argv,void* (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*)){
     srand(time(NULL));
-    int r = tb_init();
-    if (r < 0){
-        puts("Termbox Error.");
+    int r = 1;
+    if (initscr() == NULL){
+        // TODO Which Error?
+        puts("Curses Error.");
         return;
     }
-    struct tb_event event;
-    struct world world;
-    memset(&world,0,sizeof(struct world));
-    init_world(&world);
-    start(&world,argc,argv);
-    r = step_world(&world,WORLD_START_EVENT);
-    while (!r) {
-        int t = tb_peek_event(&event,world.interval);
-        if (t == -1){
-            end_message(&world,"termox poll error");
-        }
-        int eventkey = WORLD_TIMEOUT_EVENT;
-        if (event.type == TB_EVENT_KEY){
-            eventkey = event.key;
-            if (event.ch > 0){
-                eventkey = event.ch;
-            }
-        }
-        else if (event.type == TB_EVENT_RESIZE){
-            eventkey = WORLD_RESIZE_EVENT;
-        }
-        else if (event.type == TB_EVENT_MOUSE){
-            // Ignore mouse events
-            continue;
-        }
-        r = step_world(&world,eventkey);
-        if (eventkey == TB_KEY_CTRL_C){
-            r = 1;
-        }
-        else if (eventkey == TB_KEY_CTRL_D){
-            r = 1;
-        }
+    noecho(); // Nevypisuj vstup na obrazovku
+    cbreak(); // Zabudni starý vstup
+    nodelay(stdscr,TRUE); // Nečakaj na stlačenie
+    keypad(stdscr,TRUE); // Aktivuje šípky
+    curs_set(FALSE); // Neviditeľný kurzor
+    if (has_colors()){ // Zistenie či terminál podporuje farby
+        start_color();
+        init_pair(0, COLOR_BLACK, COLOR_BLACK);
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(3, COLOR_BLUE, COLOR_BLACK);
+        init_pair(4, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(5, COLOR_CYAN, COLOR_BLACK);
+        init_pair(6, COLOR_WHITE, COLOR_BLACK);
     }
-    destroy_world(&world);
+    struct game game;
+    game.height = LINES;
+    game.width = COLS;
+    game.interval = 100;
+
+    void* world = NULL;
+    if (init_world != NULL){
+          world = init_world(&game);
+    }
+    r = step_world(world,&game);
+    while (!r) {
+        game.height = LINES;
+        game.width = COLS;
+        game.key = getch();
+        if (game.key == ERR){
+            usleep(game.interval);
+        }
+        r = step_world(world,&game);
+    }
+    if (destroy_world != NULL){
+        destroy_world(world);
+    }
+    endwin();
 };

@@ -1,11 +1,11 @@
-#include <termbox.h>
 #include <stdlib.h>
 #include <string.h>
 #include "world.h"
+#include <curses.h>
 
 // Set of variables that expresses state of the game.
 // 
-struct state {
+struct world {
     // X position of the cat
     int catx;
     // Y opsition of the cat
@@ -19,23 +19,24 @@ struct state {
 };
 
 // Start is called one in the beginning
-void start(struct world* world,int argc, char** argv){
+void* init_world(struct game* g){
+
     // Allocate memory for the state
-    struct state* st = calloc(1,(sizeof(struct state)));
+    struct world* st = calloc(1,(sizeof(struct world)));
     // Initialize state
     st->mousex = 11;
     st->mousey = 12;
     st->catx = 5;
     st->caty = 5;
     // Store pointer to the state to the world variable
-    world->state = st;
+    return st;
 }
 
 // Step is called in a loop once in interval.
 // It should modify the state and draw it.
-int step(struct world* w,int key){
+void* step_world(void* world,struct game* g){
     // Get state pointer
-    struct state* st = w->state;
+    struct world* st = world;
 
     // Update state
 
@@ -60,24 +61,24 @@ int step(struct world* w,int key){
             st->mousex += 1;
         }
         // Move cat according to keyboard
-        if (key == TB_KEY_ARROW_UP){
+        if (g->key == KEY_UP){
             st->caty -= 1;
         }
-        else if (key == TB_KEY_ARROW_DOWN){
+        else if (g->key == KEY_DOWN){
             st->caty += 1;
         }
-        else if (key == TB_KEY_ARROW_LEFT){
+        else if (g->key == KEY_LEFT){
             st->catx -= 1;
         }
-        else if (key == TB_KEY_ARROW_RIGHT){
+        else if (g->key == KEY_RIGHT){
             st->catx += 1;
         }	
     }
 	// Draw state 
-    set_character(w,st->catx,st->caty,'c');
-    set_character(w,st->mousex,st->mousey,'m');
-    set_message(w,12,13,st->message);
-    if (key == TB_KEY_ESC){
+    set_character(g,st->catx,st->caty,'c');
+    set_character(g,st->mousex,st->mousey,'m');
+    set_message(g,12,13,st->message);
+    if (g.key == KEY_ESC){
     	// Non zero means finish the loop and stop the game.
         return 1;
     }
@@ -85,8 +86,3 @@ int step(struct world* w,int key){
     return 0;
 }
 
-// Stop is called after game loop is finished
-void stop(struct world* world){
-    // Free memory for game state
-    free(world->state);
-}
