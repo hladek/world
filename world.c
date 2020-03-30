@@ -99,8 +99,10 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
          world = init_world(&game);
          assert_message(world != NULL,"init_world should return non null pointer");
     }
+    timeout(game.interval);
     // Initial step
     r = step_world(world,&game);
+    refresh();
     while (!r) {
         game.height = LINES;
         game.width = COLS;
@@ -108,9 +110,11 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
         // if nothing pressed
         if (game.key == ERR){
             // wait
-            usleep(game.interval);
+        //    usleep(game.interval);
         }
         r = step_world(world,&game);
+        refresh();
+        timeout(game.interval);
     }
     if (destroy_world != NULL){
         destroy_world(world);
