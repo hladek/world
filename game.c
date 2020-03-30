@@ -1,26 +1,11 @@
+#include <curses.h>
 #include <stdlib.h>
 #include <string.h>
 #include "world.h"
-#include <curses.h>
-
-// Set of variables that expresses state of the game.
-// 
-struct world {
-    // X position of the cat
-    int catx;
-    // Y opsition of the cat
-    int caty;
-    // X position of the mouse
-    int mousex;
-    // Y position of the mouse
-    int mousey;
-    // Funny message
-    char message[100];
-};
+#include "game.h"
 
 // Start is called one in the beginning
 void* init_world(struct game* g){
-
     // Allocate memory for the state
     struct world* st = calloc(1,(sizeof(struct world)));
     // Initialize state
@@ -34,7 +19,7 @@ void* init_world(struct game* g){
 
 // Step is called in a loop once in interval.
 // It should modify the state and draw it.
-void* step_world(void* world,struct game* g){
+int step_world(void* world,struct game* g){
     // Get state pointer
     struct world* st = world;
 
@@ -78,11 +63,10 @@ void* step_world(void* world,struct game* g){
     set_character(g,st->catx,st->caty,'c');
     set_character(g,st->mousex,st->mousey,'m');
     set_message(g,12,13,st->message);
-    if (g.key == KEY_ESC){
+    //if (g->key == KEY_B){
     	// Non zero means finish the loop and stop the game.
-        return 1;
-    }
-
+//        return 1;
+    //}
     return 0;
 }
 

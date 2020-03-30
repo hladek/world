@@ -11,11 +11,11 @@
 
 struct game {
     /**
-     * Width of the screen.
+     * Last width of the screen.
      */
     int width;
     /**
-     * Height of the screen.
+     * Last height of the screen.
      */
     int height;
     /**
@@ -23,7 +23,7 @@ struct game {
      */
     int interval;
     /**
-     * Pressed key
+     * Last pressed key. ERR if none.
      */
     int key;
 };
@@ -53,7 +53,7 @@ void set_message(struct game* w,int x,int y,const char* message);
  * @param world
  */
 
-void start(int argc,char** argv,void* (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*));
+int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*));
 
 
 
