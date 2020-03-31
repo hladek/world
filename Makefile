@@ -3,7 +3,7 @@ CFLAGS=-std=c99 -Wall -g
 all: game
 
 %.o: %.c
-	gcc $(CFLAGS) -c $< -o $@ -D _DEFAULT_SOURCE
+	gcc $(CFLAGS) -c $< -o $@
 
 clean:
 	rm *.o

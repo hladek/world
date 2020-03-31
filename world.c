@@ -5,8 +5,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <unistd.h>
-
 void abort_game(const char* message){
     endwin();
     puts(message);
@@ -32,7 +30,7 @@ void set_color_character(struct game* w,int x,int y,int character,int pen) {
         abort_game(msg);
     }
     attron(pen);
-    mvaddch(x,y,character);
+    mvaddch(y,x,character);
     attroff(pen);
 }
 
@@ -70,28 +68,30 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
     if (has_colors()){ // Zistenie či terminál podporuje farby
         start_color();
         // Pera na ciernom podklade
-        init_pair(0, COLOR_BLACK, COLOR_BLACK);
-        init_pair(1, COLOR_WHITE, COLOR_BLACK);
-        init_pair(2, COLOR_RED, COLOR_BLACK);
-        init_pair(3, COLOR_GREEN, COLOR_BLACK);
-        init_pair(4, COLOR_BLUE, COLOR_BLACK);
-        init_pair(6, COLOR_CYAN, COLOR_BLACK);
-        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(7, COLOR_YELLOW, COLOR_BLACK);
-        // Farebne stvorce
-        init_pair(8, COLOR_BLACK, COLOR_BLACK);
-        init_pair(9, COLOR_BLACK, COLOR_WHITE);
-        init_pair(10, COLOR_BLACK, COLOR_RED);
-        init_pair(11, COLOR_BLACK, COLOR_GREEN);
-        init_pair(12, COLOR_BLACK, COLOR_BLUE);
-        init_pair(13, COLOR_BLACK, COLOR_CYAN);
-        init_pair(14, COLOR_BLACK, COLOR_MAGENTA);
-        init_pair(15, COLOR_BLACK, COLOR_YELLOW);
+        init_pair(BLACK_FRONT,  COLOR_BLACK, COLOR_BLACK);
+        init_pair(WHITE_FRONT,  COLOR_WHITE, COLOR_BLACK);
+        init_pair(RED_FRONT,    COLOR_RED, COLOR_BLACK);
+        init_pair(GREEN_FRONT,  COLOR_GREEN, COLOR_BLACK);
+        init_pair(BLUE_FRONT,   COLOR_BLUE, COLOR_BLACK);
+        init_pair(CYAN_FRONT,   COLOR_CYAN, COLOR_BLACK);
+        init_pair(MAGENTA_FRONT,COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(YELLOW_FRONT, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(BLACK_BACK,   COLOR_BLACK, COLOR_BLACK);
+        init_pair(WHITE_BACK,   COLOR_BLACK, COLOR_WHITE);
+        init_pair(RED_BACK,     COLOR_BLACK, COLOR_RED);
+        init_pair(GREEN_BACK,   COLOR_BLACK, COLOR_GREEN);
+        init_pair(BLUE_BACK,    COLOR_BLACK, COLOR_BLUE);
+        init_pair(CYAN_BACK,    COLOR_BLACK, COLOR_CYAN);
+        init_pair(MAGENTA_BACK, COLOR_BLACK, COLOR_MAGENTA);
+        init_pair(YELLOW_BACK,  COLOR_BLACK, COLOR_YELLOW);
+    }
+    else {
+        puts("No colors!\n");
     }
     struct game game;
     game.height = LINES;
     game.width = COLS;
-    game.interval = 1000000;
+    game.interval = 100;
     game.key = ERR;
 
     void* world = NULL;
@@ -107,13 +107,16 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
         game.height = LINES;
         game.width = COLS;
         game.key = getch();
-        // if nothing pressed
-        if (game.key == ERR){
-            // wait
-        //    usleep(game.interval);
+        // Clear screen
+        mvaddch(0,0,' ');
+        int screenchars = LINES*COLS;
+        for (int j = 1; j < screenchars;j++ ){
+            addch(' ');
         }
+        // Draw new world
         r = step_world(world,&game);
         refresh();
+        // set new timeout
         timeout(game.interval);
     }
     if (destroy_world != NULL){

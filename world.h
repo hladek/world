@@ -19,11 +19,33 @@ struct game {
      */
     int height;
     /**
-     * Interval to wait for next step. 
+     * Interval in miliseconds to wait for next step. 
      */
     int interval;
     /**
-     * Last pressed key. ERR if none.
+     * Last pressed key or Curses event.
+     *
+     * Special event  values:
+     * ERR if timeout,
+     * KEY_RESIZE if screen resize
+     * KEY_EVENT, other event,
+     * KEY_MOUSE, mouse clicked
+     *
+     * Key values:
+     *
+     * ' ' Space
+     * KEY_DOWN Arrow down
+     * KEY_UP Arrow up
+     * KEY_LEFT Arrow left
+     * KEY_RIGHT Arrow right
+     * KEY_A1 Upper left of keypad
+     * KEY_A3 Upper right of keypad
+     * KEY_B2 Center of keypad
+     * KEY_C1 Lower left of keypad
+     * KEY_C3 Lower right of keypad
+     *
+     * KEY_ENTER
+     * KEY_BACKSPACE
      */
     int key;
 };
@@ -55,6 +77,23 @@ void set_message(struct game* w,int x,int y,const char* message);
 
 int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*));
 
-
+enum color_pen_world {
+    BLACK_FRONT,
+    WHITE_FRONT,
+    RED_FRONT,
+    GREEN_FRONT,
+    BLUE_FRONT,
+    CYAN_FRONT,
+    MAGENTA_FRONT,
+    YELLOW_FRONT,
+    BLACK_BACK,
+    WHITE_BACK,
+    RED_BACK,
+    GREEN_BACK,
+    BLUE_BACK,
+    CYAN_BACK,
+    MAGENTA_BACK,
+    YELLOW_BACK,
+};
 
 #endif

@@ -63,10 +63,10 @@ int step_world(void* world,struct game* g){
     set_character(g,st->catx,st->caty,'c');
     set_character(g,st->mousex,st->mousey,'m');
     set_message(g,12,13,st->message);
-    //if (g->key == KEY_B){
-    	// Non zero means finish the loop and stop the game.
-//        return 1;
-    //}
+    if (g->key == KEY_ENTER){
+    // Non zero means finish the loop and stop the game.
+        return 1;
+    }
     return 0;
 }
 
