@@ -4,6 +4,6 @@
 
 
 int main(int argc, char** argv){
-    start_world(step_world,init_world,free);
+    start_world(world_event,init_game,free);
     return 0;
 }

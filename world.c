@@ -17,16 +17,16 @@ void assert_message(int event,const char* message){
     }
 }
 
-void set_color_character(struct game* w,int x,int y,int character,int pen) {
-    assert_message(w != NULL,"set_character:: world is NULL"); 
+void stamp_cell(struct world* w,int character,enum color_stamp pen, int x,int y) {
+    assert_message(w != NULL,"stamp_cell:: world is NULL"); 
     if (x < 0 || x >= w->width){
         char msg[100];
-        sprintf(msg,"set_character:: width %d is out of bounds (0,%d)",x,w->width);
+        sprintf(msg,"stamp_cell:: width %d is out of bounds (0,%d)",x,w->width);
         abort_game(msg);
     }
     if (y < 0 || y >= w->height){
         char msg[100];
-        sprintf(msg,"set_character:: height %d is out of bounds (0,%d)",y,w->height);
+        sprintf(msg,"stamp_cell:: height %d is out of bounds (0,%d)",y,w->height);
         abort_game(msg);
     }
     attron(pen);
@@ -34,25 +34,11 @@ void set_color_character(struct game* w,int x,int y,int character,int pen) {
     attroff(pen);
 }
 
-void set_character(struct game* w,int x,int y,int character) {
-    set_color_character(w,x,y,character,0);
+void set_cell(struct world* w,int character,int x,int y) {
+    stamp_cell(w,character,0,x,y);
 }
 
-void set_message(struct game* w,int x,int y,const char* message) {
-    int l = strlen(message);
-    for (int i = 0; i < l; i++){
-        set_character(w,x+i,y,message[i]);
-    }
-}
-
-void set_color_message(struct game* g,int x,int y,const char* message,int character,int pen) {
-    int l = strlen(message);
-    for (int i = 0; i < l; i++){
-        set_color_character(g,x+i,y,message[i],pen);
-    }
-}
-
-int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*)){
+int start_world(int (*world_event)(struct world* world,void* game),void* (*init_game)(struct world*),void (*destroy_game)(void*)){
     srand(time(NULL));
     int r = 1;
     if (initscr() == NULL){
@@ -88,25 +74,25 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
     else {
         puts("No colors!\n");
     }
-    struct game game;
-    game.height = LINES;
-    game.width = COLS;
-    game.interval = 100;
-    game.key = ERR;
+    struct world world;
+    world.height = LINES;
+    world.width = COLS;
+    world.interval = 100;
+    world.key = ERR;
 
-    void* world = NULL;
-    if (init_world != NULL){
-         world = init_world(&game);
-         assert_message(world != NULL,"init_world should return non null pointer");
+    void* game = NULL;
+    if (init_game != NULL){
+         game = init_game(&world);
+         assert_message(game != NULL,"init_game should return non null pointer");
     }
-    timeout(game.interval);
+    timeout(world.interval);
     // Initial step
-    r = step_world(world,&game);
+    r = world_event(&world,game);
     refresh();
     while (!r) {
-        game.height = LINES;
-        game.width = COLS;
-        game.key = getch();
+        world.height = LINES;
+        world.width = COLS;
+        world.key = getch();
         // Clear screen
         mvaddch(0,0,' ');
         int screenchars = LINES*COLS;
@@ -114,13 +100,13 @@ int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct
             addch(' ');
         }
         // Draw new world
-        r = step_world(world,&game);
+        r = world_event(&world,game);
         refresh();
         // set new timeout
-        timeout(game.interval);
+        timeout(world.interval);
     }
-    if (destroy_world != NULL){
-        destroy_world(world);
+    if (destroy_game != NULL){
+        destroy_game(game);
     }
     endwin();
     return r;

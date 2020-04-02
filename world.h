@@ -1,15 +1,15 @@
-#ifndef _GAME_H_
-#define _GAME_H_
+#ifndef _WORLD_H_
+#define _WORLD_H_
 
 #include <curses.h>
 /**
- * Game world represented as a rectangular matrix of colorful characters.
+ * World represented as a rectangular matrix of colorful characters.
  * 
  * Point [0,0] is displayed the upper left corner of the screen.
  * 
  */
 
-struct game {
+struct world {
     /**
      * Last width of the screen.
      */
@@ -51,33 +51,7 @@ struct game {
 };
 
 
-/**
- * Sets cell to a state.
- * @param world
- * @param x coordinate of cell
- * @param y coordinate of cell
- * @param new state of the cell
- */
-void set_character(struct game* w,int x,int y,int value);
-
-void set_message(struct game* w,int x,int y,const char* message);
-
-/**
- *
- * @param world
- * @param number of commandline arguments
- * @param init_world
- * @param destroy_world
- *
- * void init_world(struct world* w);
- * Initializes user state.
- * Free user state.
- * @param world
- */
-
-int start_world(int (*step_world)(void*,struct game*),void* (*init_world)(struct game*),void (*destroy_world)(void*));
-
-enum color_pen_world {
+enum color_stamp {
     BLACK_FRONT,
     WHITE_FRONT,
     RED_FRONT,
@@ -95,5 +69,32 @@ enum color_pen_world {
     MAGENTA_BACK,
     YELLOW_BACK,
 };
+
+/**
+ * Sets cell to a state.
+ * @param world
+ * @param x coordinate of cell
+ * @param y coordinate of cell
+ * @param new state of the cell
+ */
+void set_cell(struct world* w,int character,int x,int y);
+
+void stamp_cell(struct world* w,int character,enum color_stamp stamp,int x,int y);
+
+/**
+ *
+ * @param world
+ * @param number of commandline arguments
+ * @param init_world
+ * @param destroy_world
+ *
+ * void init_world(struct world* w);
+ * Initializes user state.
+ * Free user state.
+ * @param world
+ */
+
+int start_world(int (*world_event)(struct world* world,void* game),void* (*init_game)(struct world* world),void (*destroy_game)(void* game));
+
 
 #endif

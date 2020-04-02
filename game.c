@@ -4,10 +4,17 @@
 #include "world.h"
 #include "game.h"
 
+void set_message(struct world* w,const char* message,int x,int y) {
+    int l = strlen(message);
+    for (int i = 0; i < l; i++){
+        set_cell(w,message[i],x+i,y);
+    }
+}
+
 // Start is called one in the beginning
-void* init_world(struct game* g){
+void* init_game(struct world* g){
     // Allocate memory for the state
-    struct world* st = calloc(1,(sizeof(struct world)));
+    struct game* st = calloc(1,(sizeof(struct game)));
     // Initialize state
     st->mousex = 11;
     st->mousey = 12;
@@ -19,54 +26,57 @@ void* init_world(struct game* g){
 
 // Step is called in a loop once in interval.
 // It should modify the state and draw it.
-int step_world(void* world,struct game* g){
+int world_event(struct world* world,void* game){
     // Get state pointer
-    struct world* st = world;
+    struct game* state = game;
 
-    // Update state
+    // Read game variable and update the world state
 
     // Is mouse caught ?
-    if ((st->caty == st->mousey) && (st->catx == st->mousex)){
+    if ((state->caty == state->mousey) && (state->catx == state->mousex)){
         // Just print message
-        strcpy(st->message,"HAM!!!");
+        strcpy(state->message,"HAM!!!");
     }
     else {
-    	// random mouse movement
+        // random mouse movement
         int m = rand() % 4;
         if (m == 0){
-            st->mousey -= 1;
+            state->mousey -= 1;
         }
         else if (m == 1){
-            st->mousey += 1;
+            state->mousey += 1;
         }
         else if (m == 2){
-            st->mousex -= 1;
+            state->mousex -= 1;
         }
         else if (m == 3){
-            st->mousex += 1;
+            state->mousex += 1;
         }
         // Move cat according to keyboard
-        if (g->key == KEY_UP){
-            st->caty -= 1;
+        if (world->key == KEY_UP){
+            state->caty -= 1;
         }
-        else if (g->key == KEY_DOWN){
-            st->caty += 1;
+        else if (world->key == KEY_DOWN){
+            state->caty += 1;
         }
-        else if (g->key == KEY_LEFT){
-            st->catx -= 1;
+        else if (world->key == KEY_LEFT){
+            state->catx -= 1;
         }
-        else if (g->key == KEY_RIGHT){
-            st->catx += 1;
-        }	
+        else if (world->key == KEY_RIGHT){
+            state->catx += 1;
+        }
     }
-	// Draw state 
-    set_character(g,st->catx,st->caty,'c');
-    set_character(g,st->mousex,st->mousey,'m');
-    set_message(g,12,13,st->message);
-    if (g->key == KEY_ENTER){
+    if (world->key == KEY_ENTER){
     // Non zero means finish the loop and stop the game.
         return 1;
     }
+	// Draw world state 
+    //
+    // Draw cat
+    set_cell(world,'c',state->catx,state->caty);
+    // Draw mouse
+    set_cell(world,'m',state->mousex,state->mousey);
+    set_message(world,state->message,12,13);
     return 0;
 }
 
