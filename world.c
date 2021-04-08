@@ -5,10 +5,48 @@
 #include <string.h>
 #include <time.h>
 
+int TIMEOUT;
+
 void abort_game(const char* message){
     endwin();
     puts(message);
     exit(1);
+}
+
+void check_bounds(const char* source,int x, int y){
+    char msg[200];
+    if (x < 0 || x >= COLS){
+        sprintf(msg,"%s:: width %d is out of bounds (0,%d)",source,x,COLS);
+        abort_game(msg);
+    }
+    if (y < 0 || y >= LINES){
+        sprintf(msg,"%s:: height %d is out of bounds (0,%d)",source,y,LINES);
+        abort_game(msg);
+    }
+}
+
+void clear_screen(){
+    // Clear screen
+    mvaddch(0,0,' ');
+    int screenchars = LINES*COLS;
+    for (int j = 1; j < screenchars;j++ ){
+        addch(' ');
+    }
+}
+
+void game_speed(int value){
+    if (value < 0){
+        abort_game("world_seed:: cannot be negative\n");
+    }
+    TIMEOUT =value;
+}
+
+void set_message(const char* message,int x,int y) {
+    int l = strlen(message);
+    for (int i = 0; i < l; i++){
+        check_bounds("set_message",x+i,y);
+        set_cell(message[i],x+i,y);
+    }
 }
 
 void assert_message(int event,const char* message){
@@ -17,30 +55,30 @@ void assert_message(int event,const char* message){
     }
 }
 
-void stamp_cell(struct world* w,int character,enum color_stamp pen, int x,int y) {
-    assert_message(w != NULL,"stamp_cell:: world is NULL"); 
-    if (x < 0 || x >= w->width){
-        char msg[100];
-        sprintf(msg,"stamp_cell:: width %d is out of bounds (0,%d)",x,w->width);
-        abort_game(msg);
-    }
-    if (y < 0 || y >= w->height){
-        char msg[100];
-        sprintf(msg,"stamp_cell:: height %d is out of bounds (0,%d)",y,w->height);
-        abort_game(msg);
-    }
-    attron(pen);
-    mvaddch(y,x,character);
-    attroff(pen);
+
+void set_cell(int character,int x,int y) {
+    check_bounds("set_cell",x,y);
+    set_color_cell(character,x,y,COLOR_WHITE,COLOR_BLACK);
 }
 
-void set_cell(struct world* w,int character,int x,int y) {
-    stamp_cell(w,character,0,x,y);
+void set_color_cell(int character,int x,int y,short front_color,short back_color){
+    check_bounds("set_color_cell",x,y);
+    if (has_colors()){
+        int pair = COLOR_COUNT * front_color + back_color; 
+        attron(COLOR_PAIR(pair));
+        mvaddch(y,x,character);
+        attroff(COLOR_PAIR(pair));
+    }
+    else{
+        mvaddch(y,x,character);
+    }
 }
 
-int start_world(int (*world_event)(struct world* world,void* game),void* (*init_game)(struct world*),void (*destroy_game)(void*)){
+int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void* game),void (*destroy_game)(void*)){
     srand(time(NULL));
     int r = 1;
+    // Speed global variable
+    TIMEOUT = 100;
     if (initscr() == NULL){
         // TODO Which Error?
         puts("Curses Error.");
@@ -51,60 +89,91 @@ int start_world(int (*world_event)(struct world* world,void* game),void* (*init_
     nodelay(stdscr,TRUE); // Nečakaj na stlačenie
     keypad(stdscr,TRUE); // Aktivuje šípky
     curs_set(FALSE); // Neviditeľný kurzor
+    /* Get all the mouse events */
+    mousemask(ALL_MOUSE_EVENTS, NULL);
+    MEVENT mouse_event;
     if (has_colors()){ // Zistenie či terminál podporuje farby
         start_color();
-        // Pera na ciernom podklade
-        init_pair(BLACK_FRONT,  COLOR_BLACK, COLOR_BLACK);
-        init_pair(WHITE_FRONT,  COLOR_WHITE, COLOR_BLACK);
-        init_pair(RED_FRONT,    COLOR_RED, COLOR_BLACK);
-        init_pair(GREEN_FRONT,  COLOR_GREEN, COLOR_BLACK);
-        init_pair(BLUE_FRONT,   COLOR_BLUE, COLOR_BLACK);
-        init_pair(CYAN_FRONT,   COLOR_CYAN, COLOR_BLACK);
-        init_pair(MAGENTA_FRONT,COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(YELLOW_FRONT, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(BLACK_BACK,   COLOR_BLACK, COLOR_BLACK);
-        init_pair(WHITE_BACK,   COLOR_BLACK, COLOR_WHITE);
-        init_pair(RED_BACK,     COLOR_BLACK, COLOR_RED);
-        init_pair(GREEN_BACK,   COLOR_BLACK, COLOR_GREEN);
-        init_pair(BLUE_BACK,    COLOR_BLACK, COLOR_BLUE);
-        init_pair(CYAN_BACK,    COLOR_BLACK, COLOR_CYAN);
-        init_pair(MAGENTA_BACK, COLOR_BLACK, COLOR_MAGENTA);
-        init_pair(YELLOW_BACK,  COLOR_BLACK, COLOR_YELLOW);
+        for (int i = 0; i < COLOR_COUNT;i++){
+            for (int j = 0; j < COLOR_COUNT;j++){
+                
+                init_pair(i * COLOR_COUNT + j, i,j);
+            }
+        }
     }
     else {
         puts("No colors!\n");
     }
-    struct world world;
-    world.height = LINES;
-    world.width = COLS;
-    world.interval = 100;
-    world.key = ERR;
-
     void* game = NULL;
     if (init_game != NULL){
-         game = init_game(&world);
-         assert_message(game != NULL,"init_game should return non null pointer");
+         game = init_game();
+         assert_message(game != NULL,"init_game:: should return non null pointer");
     }
-    timeout(world.interval);
+    timeout(TIMEOUT);
     // Initial step
-    r = world_event(&world,game);
+    struct event event;
+    memset(&event,0,sizeof(struct event));
+    event.height = LINES;
+    event.width = COLS;
+    event.type = EVENT_START;
+    // Start event
+    r = world_event(&event,game);
     refresh();
     while (!r) {
-        world.height = LINES;
-        world.width = COLS;
-        world.key = getch();
-        // Clear screen
-        mvaddch(0,0,' ');
-        int screenchars = LINES*COLS;
-        for (int j = 1; j < screenchars;j++ ){
-            addch(' ');
+        memset(&event,0,sizeof(struct event));
+        event.height = LINES;
+        event.width = COLS;
+        event.key = getch();
+        // No key was pressed
+        if (event.key == ERR){
+            event.type = EVENT_TIMEOUT;
+        }
+        // Mouse event
+        else if (event.key == KEY_MOUSE ){
+            event.type = EVENT_MOUSE;
+            if(getmouse(&mouse_event) == OK){
+                event.mouse_x = mouse_event.x;
+                event.mouse_y = mouse_event.y;
+                if(mouse_event.bstate & BUTTON1_PRESSED){
+                    event.mouse_left = 1;
+                }
+                if(mouse_event.bstate & BUTTON2_PRESSED){
+                    event.mouse_middle = 1;
+                }
+                if(mouse_event.bstate & BUTTON3_PRESSED){
+                    event.mouse_right = 1;
+                }
+            }
+        }
+        else if (event.key == KEY_RESIZE) {
+            event.type = EVENT_RESIZE;
+        }
+        else{
+            event.type = EVENT_KEY;
+            if (event.key == 27){
+                int k = getch();
+                if (k == -1){
+                    // Esc Was pressed
+                    event.type = EVENT_ESC;
+                }
+                else {
+                    // Alt was pressed
+                    event.key = k;
+                    event.alt_key = 1;
+                }
+            }
         }
         // Draw new world
-        r = world_event(&world,game);
+        r = world_event(&event,game);
         refresh();
         // set new timeout
-        timeout(world.interval);
+        timeout(TIMEOUT);
     }
+    memset(&event,0,sizeof(struct event));
+    event.height = LINES;
+    event.width = COLS;
+    event.type = EVENT_END;
+    world_event(&event,game);
     if (destroy_game != NULL){
         destroy_game(game);
     }

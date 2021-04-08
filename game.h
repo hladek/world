@@ -5,10 +5,14 @@
 // Set of variables that expresses state of the game.
 // 
 struct game {
-    // X position of the cat
+    // X speed of the cat
     int catx;
-    // Y opsition of the cat
+    // Y speed  of the cat
     int caty;
+    // X position of the cat
+    int catx_position;
+    // Y opsition of the cat
+    int caty_position;;
     // X position of the mouse
     int mousex;
     // Y position of the mouse
@@ -17,10 +21,10 @@ struct game {
     char message[100];
 };
 
-// Returns pointer to  newly allocated world
-void* init_game(struct world* g);
+// Returns pointer to  newly allocated state
+void* init_game();
 
 // Changes world according to the game state (pressed key, screen size or other event)
-int world_event(struct world* world,void* game);
+int game_event(struct event* event,void* game);
 
 #endif

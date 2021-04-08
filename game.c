@@ -4,42 +4,46 @@
 #include "world.h"
 #include "game.h"
 
-void set_message(struct world* w,const char* message,int x,int y) {
-    int l = strlen(message);
-    for (int i = 0; i < l; i++){
-        set_cell(w,message[i],x+i,y);
-    }
-}
-
 // Start is called one in the beginning
-void* init_game(struct world* g){
+void* init_game(){
     // Allocate memory for the state
     struct game* st = calloc(1,(sizeof(struct game)));
     // Initialize state
     st->mousex = 11;
     st->mousey = 12;
-    st->catx = 5;
-    st->caty = 5;
+    st->catx = 0;
+    st->caty = 0;
+    st->catx_position = 11;
+    st->caty_position = 11;
     // Store pointer to the state to the world variable
     return st;
 }
 
 // Step is called in a loop once in interval.
 // It should modify the state and draw it.
-int world_event(struct world* world,void* game){
+int game_event(struct event* event,void* game){
     // Get state pointer
     struct game* state = game;
-
-    // Read game variable and update the world state
+    char msg[200];
+    sprintf(msg,"%d",event->type);
+    set_message(msg,10,0);
+    if ( event->type == EVENT_ESC){
+        // Non zero means finish the loop and stop the game.
+        return 1;
+    }
+    // Read game variable and update the  eventstate
 
     // Is mouse caught ?
-    if ((state->caty == state->mousey) && (state->catx == state->mousex)){
-        // Just print message
-        strcpy(state->message,"HAM!!!");
+    if ((state->caty_position == state->mousey) && (state->catx_position == state->mousex)){
+        clear_screen();
+        set_message("HAM",12,13);
+        return 0;
     }
-    else {
+    if(event->type == EVENT_TIMEOUT) {
+        state->catx_position += state->catx;
+        state->caty_position += state->caty;
         // random mouse movement
-        int m = rand() % 4;
+        int m = rand() % 6;
         if (m == 0){
             state->mousey -= 1;
         }
@@ -52,31 +56,34 @@ int world_event(struct world* world,void* game){
         else if (m == 3){
             state->mousex += 1;
         }
-        // Move cat according to keyboard
-        if (world->key == KEY_UP){
-            state->caty -= 1;
-        }
-        else if (world->key == KEY_DOWN){
-            state->caty += 1;
-        }
-        else if (world->key == KEY_LEFT){
-            state->catx -= 1;
-        }
-        else if (world->key == KEY_RIGHT){
-            state->catx += 1;
-        }
     }
-    if (world->key == KEY_ENTER){
-    // Non zero means finish the loop and stop the game.
-        return 1;
+    if (event->type == EVENT_KEY){
+        // Move cat according to keyboard
+        if ( event->key == KEY_UP){
+            state->catx = 0;
+            state->caty = -1;
+        }
+        else if ( event->key == KEY_DOWN){
+            state->catx = 0;
+            state->caty = 1;
+        }
+        else if ( event->key == KEY_LEFT){
+            state->catx = -1;
+            state->caty = 0;
+        }
+        else if ( event->key == KEY_RIGHT){
+            state->catx = +1;
+            state->caty = 0;
+        }
     }
 	// Draw world state 
     //
     // Draw cat
-    set_cell(world,'c',state->catx,state->caty);
+    clear_screen();
+    set_cell('c',state->catx_position,state->caty_position);
     // Draw mouse
-    set_cell(world,'m',state->mousex,state->mousey);
-    set_message(world,state->message,12,13);
+    set_cell('m',state->mousex,state->mousey);
+    set_message( state->message,1,0);
     return 0;
 }
 

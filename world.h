@@ -2,6 +2,7 @@
 #define _WORLD_H_
 
 #include <curses.h>
+
 /**
  * World represented as a rectangular matrix of colorful characters.
  * 
@@ -9,7 +10,17 @@
  * 
  */
 
-struct world {
+enum event_type {
+    EVENT_START,
+    EVENT_TIMEOUT,
+    EVENT_KEY,
+    EVENT_MOUSE,
+    EVENT_RESIZE,
+    EVENT_ESC,
+    EVENT_END,
+};
+
+struct event {
     /**
      * Last width of the screen.
      */
@@ -18,10 +29,6 @@ struct world {
      * Last height of the screen.
      */
     int height;
-    /**
-     * Interval in miliseconds to wait for next step. 
-     */
-    int interval;
     /**
      * Last pressed key or Curses event.
      *
@@ -48,53 +55,58 @@ struct world {
      * KEY_BACKSPACE
      */
     int key;
-};
-
-
-enum color_stamp {
-    BLACK_FRONT,
-    WHITE_FRONT,
-    RED_FRONT,
-    GREEN_FRONT,
-    BLUE_FRONT,
-    CYAN_FRONT,
-    MAGENTA_FRONT,
-    YELLOW_FRONT,
-    BLACK_BACK,
-    WHITE_BACK,
-    RED_BACK,
-    GREEN_BACK,
-    BLUE_BACK,
-    CYAN_BACK,
-    MAGENTA_BACK,
-    YELLOW_BACK,
+    int alt_key;
+    enum event_type type;
+    int mouse_x;
+    int mouse_y;
+    int mouse_left;
+    int mouse_right;
+    int mouse_middle;
 };
 
 /**
  * Sets cell to a state.
- * @param world
+ * @param event 
  * @param x coordinate of cell
  * @param y coordinate of cell
  * @param new state of the cell
  */
-void set_cell(struct world* w,int character,int x,int y);
+void set_cell(int character,int x,int y);
 
-void stamp_cell(struct world* w,int character,enum color_stamp stamp,int x,int y);
+/**
+ * COLOR_BLACK   0
+ * COLOR_RED     1
+ * COLOR_GREEN   2
+ * COLOR_YELLOW  3
+ * COLOR_BLUE    4
+ * COLOR_MAGENTA 5
+ * COLOR_CYAN    6
+ * COLOR_WHITE   7
+ */
+
+#define COLOR_COUNT 8
+
+void set_color_cell(int character,int x,int y,short front_color,short back_color);
+
 
 /**
  *
- * @param world
+ * @param event
  * @param number of commandline arguments
  * @param init_world
  * @param destroy_world
  *
- * void init_world(struct world* w);
+ * void init_world(struct event* w);
  * Initializes user state.
  * Free user state.
- * @param world
+ * @param event
  */
 
-int start_world(int (*world_event)(struct world* world,void* game),void* (*init_game)(struct world* world),void (*destroy_game)(void* game));
+int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void* game),void (*destroy_game)(void* game));
 
+void game_speed(int value);
+
+void set_message(const char* message,int x,int y);
+void clear_screen();
 
 #endif
