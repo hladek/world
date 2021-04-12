@@ -68,7 +68,7 @@ The world  has the following parameters:
 
 ### The Event Function
 
-The `int game_event(struct world* world,void* game)`
+The `int game_event(struct event* event,void* game)`
  function should:
 
 1. Read the game state (from the `void* game`) pointer.
