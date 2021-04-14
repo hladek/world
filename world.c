@@ -116,6 +116,10 @@ int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void
     event.height = LINES;
     event.width = COLS;
     event.type = EVENT_START;
+    clock_t start_time = clock();
+    clock_t last_timeout = start_time;
+    clock_t next_timeout = last_timeout + TIMEOUT;
+    event.time_ms = start_time;
     // Start event
     r = world_event(&event,game);
     refresh();
@@ -127,6 +131,8 @@ int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void
         // No key was pressed
         if (event.key == ERR){
             event.type = EVENT_TIMEOUT;
+            last_timeout = clock();
+            next_timeout = last_timeout + TIMEOUT;
         }
         // Mouse event
         else if (event.key == KEY_MOUSE ){
@@ -164,15 +170,26 @@ int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void
             }
         }
         // Draw new world
+        event.time_ms = clock();
         r = world_event(&event,game);
         refresh();
+        event.time_ms = clock();
         // set new timeout
-        timeout(TIMEOUT);
+        int nt = next_timeout - event.time_ms;
+        //printf("%d\n",nt);
+        if (nt > 0){
+            timeout(nt);
+        }
+        else {
+            timeout(TIMEOUT);
+            next_timeout = event.time_ms + TIMEOUT;
+        }
     }
     memset(&event,0,sizeof(struct event));
     event.height = LINES;
     event.width = COLS;
     event.type = EVENT_END;
+    event.time_ms = clock();
     world_event(&event,game);
     if (destroy_game != NULL){
         destroy_game(game);

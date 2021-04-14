@@ -62,6 +62,7 @@ struct event {
     int mouse_left;
     int mouse_right;
     int mouse_middle;
+    long int time_ms;
 };
 
 /**

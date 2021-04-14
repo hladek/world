@@ -39,7 +39,8 @@ int game_event(struct event* event,void* game){
         set_message("HAM",12,13);
         return 0;
     }
-    if(event->type == EVENT_TIMEOUT) {
+    else if(event->type == EVENT_TIMEOUT) {
+        // Move cat
         state->catx_position += state->catx;
         state->caty_position += state->caty;
         // random mouse movement
@@ -57,7 +58,7 @@ int game_event(struct event* event,void* game){
             state->mousex += 1;
         }
     }
-    if (event->type == EVENT_KEY){
+    else if (event->type == EVENT_KEY){
         // Move cat according to keyboard
         if ( event->key == KEY_UP){
             state->catx = 0;
