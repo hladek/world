@@ -96,7 +96,6 @@ int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void
         start_color();
         for (int i = 0; i < COLOR_COUNT;i++){
             for (int j = 0; j < COLOR_COUNT;j++){
-                
                 init_pair(i * COLOR_COUNT + j, i,j);
             }
         }

@@ -9,12 +9,12 @@ void* init_game(){
     // Allocate memory for the state
     struct game* st = calloc(1,(sizeof(struct game)));
     // Initialize state
-    st->mousex = 11;
-    st->mousey = 12;
+    st->mousex = 5;
+    st->mousey = 5;
     st->catx = 0;
     st->caty = 0;
-    st->catx_position = 11;
-    st->caty_position = 11;
+    st->catx_position = 15;
+    st->caty_position = 15;
     // Store pointer to the state to the world variable
     return st;
 }
@@ -41,8 +41,21 @@ int game_event(struct event* event,void* game){
     }
     else if(event->type == EVENT_TIMEOUT) {
         // Move cat
-        state->catx_position += state->catx;
-        state->caty_position += state->caty;
+        //state->catx_position += state->catx;
+        //state->caty_position += state->caty;
+        int cx = state->catx_position + state->catx;
+        int cy = state->caty_position + state->caty;
+        if (cx < 0 || cy < 0 || cx > event->width || cy > event->height){
+
+        }
+        else {
+            state->catx_position = cx;
+            state->caty_position = cy;
+        }
+
+        //state->catx_position += state->catx;
+        //state->caty_position += state->caty;
+        //state->caty_position += state->caty;
         // random mouse movement
         int m = rand() % 6;
         if (m == 0){
@@ -57,6 +70,7 @@ int game_event(struct event* event,void* game){
         else if (m == 3){
             state->mousex += 1;
         }
+        // Je myska mimo plochy
     }
     else if (event->type == EVENT_KEY){
         // Move cat according to keyboard
@@ -81,7 +95,9 @@ int game_event(struct event* event,void* game){
     //
     // Draw cat
     clear_screen();
-    set_cell('c',state->catx_position,state->caty_position);
+    set_color_cell('c',state->catx_position,state->caty_position,COLOR_YELLOW,COLOR_RED);
+    set_color_cell('-',state->catx_position-1,state->caty_position,COLOR_YELLOW,COLOR_GREEN);
+    //set_cell('c',state->catx_position,state->caty_position);
     // Draw mouse
     set_cell('m',state->mousex,state->mousey);
     set_message( state->message,1,0);
