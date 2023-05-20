@@ -7,6 +7,19 @@
 
 int TIMEOUT;
 
+void menu()
+{
+	initscr();
+	noecho();
+    	cbreak();
+}
+
+char get_key()
+{
+	getch();
+}
+
+
 void abort_game(const char* message){
     endwin();
     puts(message);
