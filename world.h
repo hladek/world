@@ -65,6 +65,9 @@ struct event {
     long int time_ms;
 };
 
+void menu();
+
+char get_key();
 /**
  * Sets cell to a state.
  * @param event 
