@@ -88,8 +88,8 @@ void set_cell(int character,int x,int y);
 #define COLOR_COUNT 8
 
 void set_color_cell(int character,int x,int y,short front_color,short back_color);
-
-
+//Funkcia ktorá vypíše zadaný reťazec na obrazovku s farebným zvýraznením
+void set_color_message(const char* message, int x, int y, short front_color, short back_color);
 /**
  *
  * @param event
