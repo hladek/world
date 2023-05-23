@@ -73,7 +73,15 @@ void set_color_cell(int character,int x,int y,short front_color,short back_color
         mvaddch(y,x,character);
     }
 }
-
+//Funkcia, ktorá vypíše zadaný reťazec na obrazovku s farebným zvýraznením. int x a int y sú súradnice začiatku reťazca. 
+//char* message je reťazec. short front_color a short back_color sú farby znakov a pozadia
+void set_color_message(const char* message, int x, int y, short front_color, short back_color){
+	int l = strlen(message);
+	for (int i=0; i<l; i++){
+		check_bounds("set_message", x+i, y);
+		set_color_cell(message[i], x+i, y, front_color, back_color);
+}
+}
 int start_world(void* (*init_game)(),int (*world_event)(struct event* event,void* game),void (*destroy_game)(void*)){
     srand(time(NULL));
     int r = 1;
